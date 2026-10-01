@@ -8,11 +8,12 @@ import {
   Copy, 
   Check, 
   Code2, 
-  Server 
+  Server,
+  Bot
 } from 'lucide-react';
 
 export const MetaConfigView = () => {
-  const { config, updateConfig, testMetaConnection } = useInstagram();
+  const { config, updateConfig, testMetaConnection, autopilotConfig, updateAutopilotConfig, addToast } = useInstagram();
   
   const [appId, setAppId] = useState(config.appId);
   const [appSecret, setAppSecret] = useState(config.appSecret);
@@ -20,6 +21,7 @@ export const MetaConfigView = () => {
   const [instagramAccountId, setInstagramAccountId] = useState(config.instagramAccountId);
   const [username, setUsername] = useState(config.username);
   const [isLiveMode, setIsLiveMode] = useState(config.isLiveMode);
+  const [openaiKey, setOpenaiKey] = useState(autopilotConfig.openaiApiKey || '');
   const [isTesting, setIsTesting] = useState(false);
   const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
 
@@ -33,6 +35,10 @@ export const MetaConfigView = () => {
       username,
       isLiveMode,
     });
+    if (openaiKey !== autopilotConfig.openaiApiKey) {
+      updateAutopilotConfig({ openaiApiKey: openaiKey.trim() });
+    }
+    addToast('Configurações da Meta e chave da OpenAI salvas!', 'success');
   };
 
   const handleTestConnection = async () => {
@@ -165,6 +171,35 @@ export const MetaConfigView = () => {
                   className="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-pink-500"
                 />
               </div>
+            </div>
+
+            {/* OpenAI / ChatGPT Key */}
+            <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <label className="font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Bot className="w-3.5 h-3.5 text-pink-400" />
+                  Chave de API OpenAI (ChatGPT & DALL-E 3):
+                </label>
+                <a
+                  href="https://platform.openai.com/api-keys"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-pink-400 hover:underline flex items-center gap-0.5"
+                >
+                  <span>Pegar chave na OpenAI</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
+              <input
+                type="password"
+                value={openaiKey}
+                onChange={(e) => setOpenaiKey(e.target.value)}
+                placeholder="sk-proj-..."
+                className="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-pink-500"
+              />
+              <p className="text-[10px] text-slate-500">
+                Usada pelo Piloto Automático para gerar legendas inéditas e criar imagens personalizadas no DALL-E 3.
+              </p>
             </div>
 
             <div className="pt-3 flex items-center gap-3">

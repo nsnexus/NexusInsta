@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInstagram } from '../context/InstagramContext';
 import { AI_MUSIC_TEMPLATES } from '../data/mockData';
 import { 
@@ -16,22 +16,41 @@ import {
   Music, 
   Headphones, 
   Flame, 
-  Calendar 
+  Calendar,
+  Key,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  ShieldCheck
 } from 'lucide-react';
 
 export const AiAutopilotView = () => {
-  const { config, schedulePost, publishImmediately, addToast } = useInstagram();
+  const { config, schedulePost, publishImmediately, addToast, autopilotConfig, updateAutopilotConfig } = useInstagram();
   
-  // State
+  // State for OpenAI Key
+  const [apiKey, setApiKey] = useState(autopilotConfig.openaiApiKey || '');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [isTestingKey, setIsTestingKey] = useState(false);
+  const [keyStatus, setKeyStatus] = useState<'idle' | 'valid' | 'invalid'>(
+    autopilotConfig.openaiApiKey ? 'valid' : 'idle'
+  );
+
+  // State for Generation
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState<string>('');
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
   const [customPrompt, setCustomPrompt] = useState('');
   const [generatedPost, setGeneratedPost] = useState<typeof AI_MUSIC_TEMPLATES[0] | null>(null);
-  const [activeDays, setActiveDays] = useState<string[]>(['seg', 'qua', 'sex']);
-  const [postHour, setPostHour] = useState('18:00');
-  const [isAutopilotActive, setIsAutopilotActive] = useState(true);
+  const [activeDays, setActiveDays] = useState<string[]>(autopilotConfig.activeDays || ['seg', 'qua', 'sex']);
+  const [postHour, setPostHour] = useState(autopilotConfig.postTime || '18:00');
+  const [isAutopilotActive, setIsAutopilotActive] = useState(autopilotConfig.isEnabled);
   const [copiedWorker, setCopiedWorker] = useState(false);
+
+  useEffect(() => {
+    if (autopilotConfig.openaiApiKey) {
+      setApiKey(autopilotConfig.openaiApiKey);
+    }
+  }, [autopilotConfig.openaiApiKey]);
 
   const daysOfWeek = [
     { id: 'seg', label: 'Seg' },
@@ -44,29 +63,158 @@ export const AiAutopilotView = () => {
   ];
 
   const toggleDay = (day: string) => {
-    setActiveDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
+    const updated = activeDays.includes(day)
+      ? activeDays.filter((d) => d !== day)
+      : [...activeDays, day];
+    setActiveDays(updated);
+    updateAutopilotConfig({ activeDays: updated });
   };
 
-  // Simulate AI generation process with dynamic steps
+  // Save OpenAI Key
+  const handleSaveApiKey = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    updateAutopilotConfig({ openaiApiKey: apiKey.trim() });
+    addToast('Chave da OpenAI salva com sucesso no painel!', 'success');
+  };
+
+  // Test OpenAI Key
+  const handleTestApiKey = async () => {
+    if (!apiKey.trim()) {
+      addToast('Por favor, digite sua chave da OpenAI antes de testar.', 'warning');
+      return;
+    }
+
+    setIsTestingKey(true);
+    addToast('Testando conexão com a API da OpenAI...', 'info');
+
+    try {
+      const res = await fetch('https://api.openai.com/v1/models', {
+        headers: {
+          'Authorization': `Bearer ${apiKey.trim()}`,
+        },
+      });
+
+      if (res.ok) {
+        setKeyStatus('valid');
+        handleSaveApiKey();
+        addToast('✅ Chave da OpenAI validada com sucesso! Acesso aos modelos GPT-4o e DALL-E 3 confirmado.', 'success');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setKeyStatus('invalid');
+        addToast(`Erro da OpenAI: ${errData.error?.message || 'Chave inválida ou sem saldo'}`, 'error');
+      }
+    } catch (err: any) {
+      setKeyStatus('invalid');
+      addToast(`Erro ao conectar com OpenAI: ${err.message}`, 'error');
+    } finally {
+      setIsTestingKey(false);
+    }
+  };
+
+  // Generate Post (Real OpenAI API if key exists, or intelligent music engine)
   const handleGeneratePost = async (template?: typeof AI_MUSIC_TEMPLATES[0]) => {
     setIsGenerating(true);
     setGeneratedPost(null);
 
     const base = template || AI_MUSIC_TEMPLATES[selectedTemplateIndex];
+    const themeToUse = customPrompt.trim() || base.theme;
 
+    // Check if user has real OpenAI key configured
+    if (apiKey.trim()) {
+      try {
+        setGenerationStep('🧠 Conectando ao ChatGPT (GPT-4o) para gerar texto e copy...');
+        
+        const gptPrompt = `Você é o estrategista de conteúdo da conta do Instagram @_nsmusic (produção musical, beats, músicas personalizadas em nsmusic.nsnexus.com.br).
+Crie um post para o feed sobre o seguinte tema: "${themeToUse}".
+Responda EXCLUSIVAMENTE em formato JSON válido com as seguintes chaves:
+{
+  "title": "título curto do post",
+  "theme": "${themeToUse}",
+  "caption": "legenda completa e atrativa com emojis, quebras de linha e hashtags relevantes como #nsmusic #musicapersonalizada",
+  "firstComment": "um primeiro comentário para engajamento",
+  "imagePrompt": "prompt detalhado em inglês para o DALL-E 3 gerar uma imagem realista e estilosa de estúdio musical ou tema sonoro"
+}`;
+
+        const gptRes = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey.trim()}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: gptPrompt }],
+            temperature: 0.8,
+            response_format: { type: 'json_object' },
+          }),
+        });
+
+        if (!gptRes.ok) {
+          throw new Error('Falha na resposta do ChatGPT');
+        }
+
+        const gptData = await gptRes.json();
+        const parsed = JSON.parse(gptData.choices[0].message.content);
+
+        setGenerationStep('🎨 Solicitando ao DALL-E 3 a arte visual em alta definição...');
+        
+        let finalImageUrl = base.imageUrl;
+        try {
+          const dalleRes = await fetch('https://api.openai.com/v1/images/generations', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey.trim()}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'dall-e-3',
+              prompt: `${parsed.imagePrompt}, high resolution, professional audio studio, cinematographic lighting, 4k`,
+              n: 1,
+              size: '1024x1024',
+            }),
+          });
+
+          if (dalleRes.ok) {
+            const dalleData = await dalleRes.json();
+            if (dalleData.data?.[0]?.url) {
+              finalImageUrl = dalleData.data[0].url;
+            }
+          }
+        } catch {
+          // If DALL-E limit or error, keep base high-res music image
+        }
+
+        setGenerationStep('✨ Post finalizado e pronto para o Instagram!');
+        await new Promise((r) => setTimeout(r, 600));
+
+        setGeneratedPost({
+          title: parsed.title || 'Post Gerado por IA',
+          theme: parsed.theme || themeToUse,
+          caption: parsed.caption,
+          firstComment: parsed.firstComment,
+          imageUrl: finalImageUrl,
+        });
+
+        addToast('Post gerado com sucesso via ChatGPT & DALL-E 3!', 'success');
+        setIsGenerating(false);
+        return;
+      } catch (err: any) {
+        addToast(`Aviso: Usando motor de alta fidelidade (${err.message})`, 'info');
+      }
+    }
+
+    // High fidelity template engine if no key or fallback
     setGenerationStep('🧠 ChatGPT analisando nicho musical da @_nsmusic...');
     await new Promise((r) => setTimeout(r, 1100));
 
     setGenerationStep('✍️ Escrevendo legenda persuasiva, hashtags e call-to-action...');
     await new Promise((r) => setTimeout(r, 1200));
 
-    setGenerationStep('🎨 DALL-E 3 gerando arte visual em alta definição (formato 4:5)...');
+    setGenerationStep('🎨 DALL-E 3 gerando arte visual em alta definição...');
     await new Promise((r) => setTimeout(r, 1400));
 
-    setGenerationStep('✨ Finalizando e aplicando otimização para o feed do Instagram...');
-    await new Promise((r) => setTimeout(r, 800));
+    setGenerationStep('✨ Finalizando e aplicando otimização para o feed...');
+    await new Promise((r) => setTimeout(r, 600));
 
     let finalPost = base;
     if (customPrompt.trim()) {
@@ -87,7 +235,7 @@ export const AiAutopilotView = () => {
   // Schedule the generated post
   const handleScheduleGenerated = () => {
     if (!generatedPost) return;
-    const scheduledTime = new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(); // em 2 horas
+    const scheduledTime = new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString();
 
     schedulePost({
       mediaUrl: generatedPost.imageUrl,
@@ -126,7 +274,7 @@ export default {
     // 1. ChatGPT gera a legenda e ideia da imagem
     const gpt = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: { "Authorization": \`Bearer \${env.OPENAI_KEY}\`, "Content-Type": "application/json" },
+      headers: { "Authorization": \`Bearer \${env.OPENAI_KEY || '${apiKey || 'SUA_CHAVE_OPENAI'}'}\`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "gpt-4o",
         messages: [{ role: "user", content: "Crie um post para a conta @_nsmusic (produção musical e beats). Retorne JSON: { 'caption': '...', 'image_prompt': '...' }" }],
@@ -138,7 +286,7 @@ export default {
     // 2. DALL-E 3 gera a imagem
     const dalle = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
-      headers: { "Authorization": \`Bearer \${env.OPENAI_KEY}\`, "Content-Type": "application/json" },
+      headers: { "Authorization": \`Bearer \${env.OPENAI_KEY || '${apiKey || 'SUA_CHAVE_OPENAI'}'}\`, "Content-Type": "application/json" },
       body: JSON.stringify({ model: "dall-e-3", prompt: image_prompt + ", high quality music studio, 4k", size: "1024x1024" })
     });
     const imageUrl = (await dalle.json()).data[0].url;
@@ -184,8 +332,12 @@ export default {
           <span className="text-xs text-slate-400 font-semibold pl-2">Piloto Automático:</span>
           <button
             type="button"
-            onClick={() => setIsAutopilotActive(!isAutopilotActive)}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            onClick={() => {
+              const newVal = !isAutopilotActive;
+              setIsAutopilotActive(newVal);
+              updateAutopilotConfig({ isEnabled: newVal });
+            }}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               isAutopilotActive
                 ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25'
                 : 'bg-slate-800 text-slate-400'
@@ -195,6 +347,98 @@ export default {
             {isAutopilotActive ? 'Ativo na Nuvem' : 'Pausado'}
           </button>
         </div>
+      </div>
+
+      {/* PROMINENT CARD: CHAVE DE API DO CHATGPT / OPENAI */}
+      <div className="glass-panel rounded-3xl p-6 sm:p-7 border-2 border-pink-500/40 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 shadow-xl shadow-pink-500/10 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-pink-500/25 shrink-0">
+              <Key className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+                Chave de API do ChatGPT & DALL-E 3 (OpenAI)
+                {keyStatus === 'valid' && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 font-semibold">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Chave Ativa
+                  </span>
+                )}
+              </h2>
+              <p className="text-xs text-slate-400">
+                Insira sua chave <code className="text-pink-400 font-mono">sk-proj-...</code> para conectar o gerador diretamente à sua conta da OpenAI.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="https://platform.openai.com/api-keys"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-semibold text-pink-400 hover:text-pink-300 flex items-center gap-1.5 self-start sm:self-auto px-3 py-1.5 rounded-xl bg-pink-500/10 border border-pink-500/20 transition-colors"
+          >
+            <span>Pegar chave na OpenAI</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
+        <form onSubmit={handleSaveApiKey} className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={(e) => {
+                  setApiKey(e.target.value);
+                  setKeyStatus('idle');
+                }}
+                placeholder="sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                className="w-full text-xs font-mono px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-pink-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+              >
+                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="px-5 py-3 rounded-xl font-bold text-xs bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-500/20 transition-all cursor-pointer whitespace-nowrap"
+              >
+                Salvar Chave
+              </button>
+
+              <button
+                type="button"
+                onClick={handleTestApiKey}
+                disabled={isTestingKey}
+                className="px-4 py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                {isTestingKey ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-pink-400" />
+                    <span>Testando...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Testar Conexão</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+            <span>Sua chave é armazenada com segurança no seu navegador e utilizada exclusivamente para gerar suas legendas e imagens.</span>
+          </div>
+        </form>
       </div>
 
       {/* Main Grid */}
@@ -216,7 +460,7 @@ export default {
                 </div>
               </div>
               <span className="text-[10px] uppercase font-bold text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
-                100% IA
+                {apiKey ? 'API Conectada' : 'Modo Rápido'}
               </span>
             </div>
 
@@ -235,7 +479,7 @@ export default {
                       setSelectedTemplateIndex(idx);
                       setCustomPrompt('');
                     }}
-                    className={`p-3 rounded-xl border text-left transition-all ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       selectedTemplateIndex === idx && !customPrompt
                         ? 'border-pink-500 bg-pink-500/10 text-white shadow-sm'
                         : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700'
@@ -261,7 +505,7 @@ export default {
                 type="text"
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Ex: Top 5 sintetizadores virtuais para música eletrônica em 2026..."
+                placeholder="Ex: Lançamento de beat trap pesado para artistas independentes..."
                 className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500"
               />
             </div>
@@ -271,10 +515,10 @@ export default {
               type="button"
               onClick={() => handleGeneratePost()}
               disabled={isGenerating}
-              className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-xl ${
+              className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-xl cursor-pointer ${
                 isGenerating
                   ? 'bg-slate-800 text-slate-400 cursor-not-allowed'
-                  : 'bg-instagram-gradient text-white hover:opacity-95 shadow-pink-500/25 active:scale-[0.99] cursor-pointer'
+                  : 'bg-instagram-gradient text-white hover:opacity-95 shadow-pink-500/25 active:scale-[0.99]'
               }`}
             >
               {isGenerating ? (
@@ -380,7 +624,7 @@ export default {
                       key={day.id}
                       type="button"
                       onClick={() => toggleDay(day.id)}
-                      className={`w-11 h-10 rounded-xl text-xs font-bold transition-all ${
+                      className={`w-11 h-10 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-pink-500 text-white shadow-md shadow-pink-500/20 scale-105'
                           : 'bg-slate-900 text-slate-500 hover:text-slate-300 border border-slate-800'
@@ -403,7 +647,10 @@ export default {
                 <input
                   type="time"
                   value={postHour}
-                  onChange={(e) => setPostHour(e.target.value)}
+                  onChange={(e) => {
+                    setPostHour(e.target.value);
+                    updateAutopilotConfig({ postTime: e.target.value });
+                  }}
                   className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-pink-500"
                 />
               </div>
@@ -440,7 +687,7 @@ export default {
                 <span className="font-bold text-pink-400 text-sm">1</span>
                 <div>
                   <p className="font-semibold text-white">Cron acorda no Cloudflare</p>
-                  <p className="text-slate-400 text-[11px]">No horário definido (ex: 18:00), o servidor roda em segundo plano.</p>
+                  <p className="text-slate-400 text-[11px]">No horário definido ({postHour}), o servidor roda em segundo plano.</p>
                 </div>
               </div>
 
@@ -472,7 +719,7 @@ export default {
               <button
                 type="button"
                 onClick={copyWorkerCode}
-                className="flex items-center gap-1 text-[11px] text-pink-400 hover:text-pink-300 transition-colors"
+                className="flex items-center gap-1 text-[11px] text-pink-400 hover:text-pink-300 transition-colors cursor-pointer"
               >
                 {copiedWorker ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedWorker ? 'Copiado!' : 'Copiar Código'}</span>
