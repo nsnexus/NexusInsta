@@ -18,6 +18,7 @@ export interface InstagramPost {
   comments?: number;
   reach?: number;
   errorMessage?: string;
+  generatedByAi?: boolean;
 }
 
 export interface MetaApiConfig {
@@ -30,8 +31,40 @@ export interface MetaApiConfig {
   accountName: string;
   avatarUrl: string;
   isConnected: boolean;
-  isLiveMode: boolean; // false = Sandbox/Simulação, true = Chamadas reais Meta Graph API
-  dailyQuotaUsed: number; // 0 to 50
+  isLiveMode: boolean;
+  dailyQuotaUsed: number;
+  followersCount?: number;
+  mediaCount?: number;
+}
+
+export interface AiAutopilotConfig {
+  isEnabled: boolean;
+  nichePrompt: string;
+  toneOfVoice: string;
+  postTime: string;
+  activeDays: string[]; // ['seg', 'qua', 'sex']
+  openaiApiKey?: string;
+  defaultAspectRatio: AspectRatio;
+  autoPublishDirectly: boolean; // se true publica direto, se false cria agendado
+}
+
+export interface DirectAutoReplyRule {
+  id: string;
+  keywords: string[];
+  replyText: string;
+  isActive: boolean;
+  category: string;
+}
+
+export interface DirectMessageItem {
+  id: string;
+  senderName: string;
+  senderHandle: string;
+  senderAvatar?: string;
+  messageText: string;
+  timestamp: string;
+  isIncoming: boolean;
+  repliedAutomatically?: boolean;
 }
 
 export interface ApiLog {
@@ -49,3 +82,4 @@ export interface HashtagGroup {
   category: string;
   tags: string[];
 }
+

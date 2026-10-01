@@ -1,6 +1,5 @@
 import { useInstagram } from '../context/InstagramContext';
 import { 
-  TrendingUp, 
   Heart, 
   Sparkles, 
   CheckCircle, 
@@ -18,7 +17,6 @@ export const AnalyticsView = () => {
 
   const totalLikes = publishedPosts.reduce((acc, p) => acc + (p.likes || 0), 0);
   const totalComments = publishedPosts.reduce((acc, p) => acc + (p.comments || 0), 0);
-  const totalReach = publishedPosts.reduce((acc, p) => acc + (p.reach || 0), 0);
 
   const quotaPercent = Math.min(100, Math.round((config.dailyQuotaUsed / 50) * 100));
 
@@ -47,39 +45,53 @@ export const AnalyticsView = () => {
         </button>
       </div>
 
-      {/* 4 Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Stat Cards com Dados Reais da Conta */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         
-        {/* Card 1: Posts Publicados */}
+        {/* Card 1: Seguidores Reais */}
         <div className="glass-panel p-5 rounded-2xl space-y-2 border border-slate-800">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
-            <span>Posts Publicados via API</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-              <CheckCircle className="w-4 h-4" />
+            <span>Seguidores no Insta</span>
+            <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400">
+              <Sparkles className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-3xl font-black text-white">{publishedPosts.length}</p>
-          <p className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>Alcance total: {totalReach.toLocaleString('pt-BR')} contas</span>
+          <p className="text-3xl font-black text-white">{config.followersCount || 811}</p>
+          <p className="text-[11px] text-pink-400 flex items-center gap-1 font-medium">
+            <span>@{config.username}</span>
+            <span className="text-emerald-400">• Conta Ativa</span>
           </p>
         </div>
 
-        {/* Card 2: Fila Ativa */}
+        {/* Card 2: Total de Publicações na Conta */}
         <div className="glass-panel p-5 rounded-2xl space-y-2 border border-slate-800">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
-            <span>Fila Programada Ativa</span>
-            <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400">
+            <span>Total de Mídias</span>
+            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+              <CheckCircle className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-black text-white">{config.mediaCount || publishedPosts.length}</p>
+          <p className="text-[11px] text-purple-400 flex items-center gap-1 font-medium">
+            <span>Feed, Reels & Vídeos</span>
+          </p>
+        </div>
+
+        {/* Card 3: Fila Ativa */}
+        <div className="glass-panel p-5 rounded-2xl space-y-2 border border-slate-800">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
+            <span>Fila Agendada</span>
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <p className="text-3xl font-black text-white">{scheduledPosts.length}</p>
-          <p className="text-[11px] text-slate-400 flex items-center gap-1">
-            <span>Próximo disparo agendado</span>
+          <p className="text-[11px] text-emerald-400 flex items-center gap-1">
+            <span>Próximos disparos</span>
           </p>
         </div>
 
-        {/* Card 3: Engajamento Acumulado */}
+        {/* Card 4: Engajamento Acumulado */}
         <div className="glass-panel p-5 rounded-2xl space-y-2 border border-slate-800">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
             <span>Interações Totais</span>
@@ -88,17 +100,17 @@ export const AnalyticsView = () => {
             </div>
           </div>
           <p className="text-3xl font-black text-white">{totalLikes + totalComments}</p>
-          <p className="text-[11px] text-rose-400 flex items-center gap-2 font-medium">
+          <p className="text-[11px] text-rose-400 flex items-center gap-1.5 font-medium">
             <span>{totalLikes} curtidas</span>
             <span>•</span>
-            <span>{totalComments} comentários</span>
+            <span>{totalComments} coments</span>
           </p>
         </div>
 
-        {/* Card 4: Cota da Meta API */}
+        {/* Card 5: Cota da Meta API */}
         <div className="glass-panel p-5 rounded-2xl space-y-2 border border-slate-800">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
-            <span>Cota Diária da Meta</span>
+            <span>Cota Diária Meta</span>
             <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400">
               <Activity className="w-4 h-4" />
             </div>
