@@ -665,6 +665,29 @@ export default {
                 </div>
               </div>
             </div>
+
+            {/* Save Routine Button */}
+            <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <p className="text-[11px] text-slate-400">
+                Disparo semanal às <strong className="text-pink-400">{postHour}</strong> nos dias: <strong className="text-slate-200">{activeDays.map(d => d.toUpperCase()).join(', ')}</strong>.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  updateAutopilotConfig({
+                    isEnabled: isAutopilotActive,
+                    activeDays,
+                    postTime: postHour,
+                    openaiApiKey: apiKey.trim(),
+                  });
+                  addToast('✅ Configurações da rotina salvas com sucesso!', 'success');
+                }}
+                className="px-5 py-2.5 rounded-xl font-bold text-xs bg-instagram-gradient text-white shadow-md shadow-pink-500/20 hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                <span>Salvar Configurações da Rotina</span>
+              </button>
+            </div>
           </div>
 
         </div>

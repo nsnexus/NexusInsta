@@ -7,11 +7,13 @@ import {
   Send, 
   Plus, 
   Trash2, 
+  Pencil,
   Smartphone,
   Zap,
   Check,
   ShieldCheck,
-  Radio
+  Radio,
+  X
 } from 'lucide-react';
 import type { DirectAutoReplyRule, DirectMessageItem } from '../types/instagram';
 
@@ -21,10 +23,13 @@ export const DirectMessagesView = () => {
   // State
   const [isAutoreplyActive, setIsAutoreplyActive] = useState(true);
   const [rules, setRules] = useState<DirectAutoReplyRule[]>(autoReplyRules);
-  const [newKeyword, setNewKeyword] = useState('');
-  const [newReply, setNewReply] = useState('');
-  const [newCategory, setNewCategory] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
+  
+  // Modal State for Add & Edit
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
+  const [ruleCategory, setRuleCategory] = useState('');
+  const [ruleKeywords, setRuleKeywords] = useState('');
+  const [ruleReplyText, setRuleReplyText] = useState('');
 
   // Chat simulator
   const [simulatorInput, setSimulatorInput] = useState('');
@@ -49,12 +54,85 @@ export const DirectMessagesView = () => {
     }
   ]);
 
-  // Toggle rule
+  // Open modal to create
+  const handleOpenCreateModal = () => {
+    setEditingRuleId(null);
+    setRuleCategory('Vendas & Informações');
+    setRuleKeywords('');
+    setRuleReplyText('');
+    setIsModalOpen(true);
+  };
+
+  // Open modal to edit existing rule
+  const handleOpenEditModal = (rule: DirectAutoReplyRule) => {
+    setEditingRuleId(rule.id);
+    setRuleCategory(rule.category);
+    setRuleKeywords(rule.keywords.join(', '));
+    setRuleReplyText(rule.replyText);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingRuleId(null);
+    setRuleCategory('');
+    setRuleKeywords('');
+    setRuleReplyText('');
+  };
+
+  // Save rule (Create or Edit)
+  const handleSaveRule = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ruleKeywords.trim() || !ruleReplyText.trim()) {
+      addToast('Preencha as palavras-chave e a resposta.', 'warning');
+      return;
+    }
+
+    const keywordList = ruleKeywords
+      .split(',')
+      .map((k) => k.trim().toLowerCase())
+      .filter(Boolean);
+
+    let updated: DirectAutoReplyRule[];
+
+    if (editingRuleId) {
+      // Edit existing
+      updated = rules.map((r) =>
+        r.id === editingRuleId
+          ? {
+              ...r,
+              category: ruleCategory.trim() || 'Geral',
+              keywords: keywordList,
+              replyText: ruleReplyText.trim(),
+            }
+          : r
+      );
+      addToast('Regra de resposta atualizada com sucesso!', 'success');
+    } else {
+      // Create new
+      const newRule: DirectAutoReplyRule = {
+        id: 'rule_' + Date.now(),
+        category: ruleCategory.trim() || 'Geral',
+        keywords: keywordList,
+        replyText: ruleReplyText.trim(),
+        isActive: true,
+      };
+      updated = [...rules, newRule];
+      addToast('Nova regra de Direct criada com sucesso!', 'success');
+    }
+
+    setRules(updated);
+    updateAutoReplyRules(updated);
+    handleCloseModal();
+  };
+
+  // Toggle active status
   const handleToggleRule = (id: string) => {
     const updated = rules.map((r) => (r.id === id ? { ...r, isActive: !r.isActive } : r));
     setRules(updated);
     updateAutoReplyRules(updated);
-    addToast('Regra de resposta atualizada.', 'info');
+    addToast('Status da regra atualizado.', 'info');
   };
 
   // Delete rule
@@ -62,30 +140,7 @@ export const DirectMessagesView = () => {
     const updated = rules.filter((r) => r.id !== id);
     setRules(updated);
     updateAutoReplyRules(updated);
-    addToast('Regra excluída.', 'warning');
-  };
-
-  // Add rule
-  const handleAddRule = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newKeyword.trim() || !newReply.trim()) return;
-
-    const newRule: DirectAutoReplyRule = {
-      id: 'rule_' + Date.now(),
-      category: newCategory.trim() || 'Geral',
-      keywords: newKeyword.split(',').map((k) => k.trim().toLowerCase()),
-      replyText: newReply.trim(),
-      isActive: true,
-    };
-
-    const updated = [...rules, newRule];
-    setRules(updated);
-    updateAutoReplyRules(updated);
-    setNewKeyword('');
-    setNewReply('');
-    setNewCategory('');
-    setShowAddModal(false);
-    addToast('Nova regra de automação criada com sucesso!', 'success');
+    addToast('Regra removida.', 'warning');
   };
 
   // Test simulation
@@ -95,7 +150,7 @@ export const DirectMessagesView = () => {
 
     const userMsg: DirectMessageItem = {
       id: 'user_' + Date.now(),
-      senderName: 'Visitante Seguidor',
+      senderName: 'Seguidor Teste',
       senderHandle: '@seguidor_demo',
       messageText: message,
       timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
@@ -106,7 +161,6 @@ export const DirectMessagesView = () => {
     if (!textToSend) setSimulatorInput('');
     setIsTyping(true);
 
-    // Engine match
     setTimeout(() => {
       let replyFound = '';
       const lower = message.toLowerCase();
@@ -121,7 +175,6 @@ export const DirectMessagesView = () => {
           }
         }
 
-        // Fallback with AI
         if (!replyFound) {
           replyFound = `Olá! Obrigado por entrar em contato com a @_nsmusic! 🎧 Recebemos sua mensagem sobre "${message}". Nosso produtor musical entrará em contato em breve ou acesse nsmusic.nsnexus.com.br!`;
         }
@@ -142,7 +195,7 @@ export const DirectMessagesView = () => {
         ]);
       }
       setIsTyping(false);
-    }, 900);
+    }, 700);
   };
 
   return (
@@ -169,10 +222,11 @@ export const DirectMessagesView = () => {
           <button
             type="button"
             onClick={() => {
-              setIsAutoreplyActive(!isAutoreplyActive);
+              const next = !isAutoreplyActive;
+              setIsAutoreplyActive(next);
               addToast(
-                !isAutoreplyActive ? 'Auto-respostas ativadas!' : 'Auto-respostas pausadas.',
-                !isAutoreplyActive ? 'success' : 'warning'
+                next ? 'Auto-respostas ativadas!' : 'Auto-respostas pausadas.',
+                next ? 'success' : 'warning'
               );
             }}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -256,53 +310,64 @@ export const DirectMessagesView = () => {
                   Regras de Resposta Automática
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Quando o seguidor enviar palavras-chave específicas, a resposta abaixo será enviada
+                  Clique em <strong>Editar</strong> para alterar o texto ou crie uma nova regra
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-500/20 transition-all cursor-pointer"
+                onClick={handleOpenCreateModal}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-500/20 transition-all cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
                 <span>Nova Regra</span>
               </button>
             </div>
 
             {/* List of rules */}
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {rules.map((rule) => (
                 <div
                   key={rule.id}
                   className={`p-4 rounded-2xl border transition-all ${
                     rule.isActive
-                      ? 'bg-slate-900/60 border-slate-800'
+                      ? 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
                       : 'bg-slate-950/40 border-slate-900 opacity-60'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-pink-500/15 text-pink-400 border border-pink-500/30">
                           {rule.category}
                         </span>
-                        <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                          <span>Gatilhos:</span>
+                        <div className="flex items-center gap-1 text-[11px] text-slate-400 flex-wrap">
+                          <span className="text-slate-500">Gatilhos:</span>
                           {rule.keywords.map((kw, i) => (
-                            <code key={i} className="text-slate-200 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 font-mono text-[10px]">
+                            <code key={i} className="text-slate-200 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800 font-mono text-[10px]">
                               {kw}
                             </code>
                           ))}
                         </div>
                       </div>
 
-                      <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line pt-1">
+                      <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
                         "{rule.replyText}"
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 pt-0.5">
+                      {/* Edit Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditModal(rule)}
+                        className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                        title="Editar esta resposta"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-pink-400" />
+                        <span className="hidden sm:inline">Editar</span>
+                      </button>
+
                       {/* Active toggle */}
                       <button
                         type="button"
@@ -310,6 +375,7 @@ export const DirectMessagesView = () => {
                         className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
                           rule.isActive ? 'bg-pink-500' : 'bg-slate-800'
                         }`}
+                        title={rule.isActive ? 'Desativar regra' : 'Ativar regra'}
                       >
                         <span
                           className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.75 transition-transform ${
@@ -322,7 +388,8 @@ export const DirectMessagesView = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteRule(rule.id)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-slate-800/80 transition-colors"
+                        className="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-slate-800/80 transition-colors cursor-pointer"
+                        title="Excluir regra"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -331,69 +398,6 @@ export const DirectMessagesView = () => {
                 </div>
               ))}
             </div>
-
-            {/* Modal to add rule */}
-            {showAddModal && (
-              <form onSubmit={handleAddRule} className="p-4 rounded-2xl bg-slate-950 border border-pink-500/30 space-y-3 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-pink-400" />
-                    Criar Nova Automação de Direct
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
-                    className="text-xs text-slate-500 hover:text-slate-300"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-400">Categoria:</label>
-                    <input
-                      type="text"
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
-                      placeholder="Ex: Vendas, Orçamento, Dúvidas"
-                      className="w-full text-xs px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-400">Palavras-chave (separadas por vírgula):</label>
-                    <input
-                      type="text"
-                      value={newKeyword}
-                      onChange={(e) => setNewKeyword(e.target.value)}
-                      placeholder="Ex: quanto custa, comprar, link"
-                      required
-                      className="w-full text-xs px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-400">Texto da Resposta Automática:</label>
-                  <textarea
-                    rows={3}
-                    value={newReply}
-                    onChange={(e) => setNewReply(e.target.value)}
-                    placeholder="Digite a resposta que o bot deve enviar no direct..."
-                    required
-                    className="w-full text-xs px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl font-bold text-xs bg-instagram-gradient text-white shadow-md shadow-pink-500/20 hover:opacity-95 cursor-pointer"
-                >
-                  Salvar Regra de Resposta
-                </button>
-              </form>
-            )}
 
           </div>
 
@@ -510,6 +514,85 @@ export const DirectMessagesView = () => {
         </div>
 
       </div>
+
+      {/* POPUP MODAL CENTERED: ADICIONAR OU EDITAR REGRA */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-pink-400" />
+                {editingRuleId ? 'Editar Resposta Automática' : 'Criar Nova Automação de Direct'}
+              </h3>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveRule} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Categoria da Regra:</label>
+                  <input
+                    type="text"
+                    value={ruleCategory}
+                    onChange={(e) => setRuleCategory(e.target.value)}
+                    placeholder="Ex: Vendas, Orçamentos, Parcerias"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Gatilhos (separados por vírgula):</label>
+                  <input
+                    type="text"
+                    value={ruleKeywords}
+                    onChange={(e) => setRuleKeywords(e.target.value)}
+                    placeholder="Ex: valor, preco, comprar, tabela"
+                    required
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Mensagem que o Bot deve responder no Direct:</label>
+                <textarea
+                  rows={4}
+                  value={ruleReplyText}
+                  onChange={(e) => setRuleReplyText(e.target.value)}
+                  placeholder="Digite aqui o texto que será enviado automaticamente no Instagram..."
+                  required
+                  className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-pink-500 leading-relaxed"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-4 py-2.5 rounded-xl font-semibold text-xs text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl font-bold text-xs bg-instagram-gradient text-white shadow-lg shadow-pink-500/25 hover:opacity-95 cursor-pointer"
+                >
+                  {editingRuleId ? 'Salvar Alterações' : 'Criar Regra'}
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

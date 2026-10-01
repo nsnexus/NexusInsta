@@ -61,7 +61,16 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
   const [autopilotConfig, setAutopilotConfig] = useState<AiAutopilotConfig>(() => {
     const saved = localStorage.getItem('nexus_autopilot_config');
     if (saved) {
-      try { return JSON.parse(saved); } catch { return INITIAL_AUTOPILOT_CONFIG; }
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          ...INITIAL_AUTOPILOT_CONFIG,
+          ...parsed,
+          openaiApiKey: parsed.openaiApiKey || INITIAL_AUTOPILOT_CONFIG.openaiApiKey,
+        };
+      } catch {
+        return INITIAL_AUTOPILOT_CONFIG;
+      }
     }
     return INITIAL_AUTOPILOT_CONFIG;
   });
