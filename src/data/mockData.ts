@@ -1,17 +1,17 @@
 import type { InstagramPost, MetaApiConfig, HashtagGroup } from '../types/instagram';
 
 export const INITIAL_META_CONFIG: MetaApiConfig = {
-  appId: '1098425192837492',
-  appSecret: '8f7a9c4b2e1d03589a712f84b6c93e10',
-  accessToken: 'EAAQ...v21_EAABwzLpZC6c7ZAQZDZD_LONG_LIVED_PAGE_TOKEN',
+  appId: '1267545348850227',
+  appSecret: 'b9a769aec77bdcecfd6625265007d402',
+  accessToken: 'EAASA02ZABQjMBSoxbuz3uMgZADyYCc4gxipsXc5Of9EuOZB5BMr7MQxZCdldGuj6TgxTrxSoZCM6oQ98kQzeo3C6ZAFTRhO2MQp17wXGZBQFB7SxsmZAdkXoTHJbb08fZCGFGnD4FpAdp52ihvCY2rF0QNgzeGqNPBbJhY77aKG7dH0ZA6uY9MX6x5FeUX0PCY00VZCLknGTKb9e6W4dG4Qfa4CW6xO1FYnWXSEV9lFz9zggehdfR4sblE4TTxDf5MUMXGdgfyZAiIGgpQ0m8mgtDK3ykyJgn2zui9WwNjgx2QZDZD',
   pageId: '104829104820194',
-  instagramAccountId: '17841405928374821',
-  username: 'agenciadigital.br',
-  accountName: 'Agência Digital Brasil | Marketing 360',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80',
+  instagramAccountId: '17841442031250300',
+  username: '_nsmusic',
+  accountName: 'NSMusic Oficial',
+  avatarUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=250&q=80',
   isConnected: true,
-  isLiveMode: false,
-  dailyQuotaUsed: 8,
+  isLiveMode: true,
+  dailyQuotaUsed: 0,
 };
 
 export const INITIAL_POSTS: InstagramPost[] = [

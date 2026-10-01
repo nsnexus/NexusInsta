@@ -47,7 +47,10 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
     const saved = localStorage.getItem('instaflow_config');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed.instagramAccountId === '17841442031250300' && parsed.accessToken) {
+          return parsed;
+        }
       } catch {
         return INITIAL_META_CONFIG;
       }
