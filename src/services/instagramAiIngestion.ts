@@ -147,7 +147,7 @@ Retorne ESTRITAMENTE um JSON no seguinte schema (sem markdown ou texto extra):
           forbiddenWords: parsed.forbiddenWords || ['amador', 'sem garantia', 'grátis para sempre'],
           defaultCta: parsed.defaultCta || 'Toque no link da bio e saiba mais!',
           websiteUrl: input.website || `https://${cleanHandle}.com.br`,
-          logoUrl: input.profilePictureUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200',
+          logoUrl: (input.profilePictureUrl && !input.profilePictureUrl.includes('unsplash') && !input.profilePictureUrl.includes('photo-15')) ? input.profilePictureUrl : '/nsmusic-logo.png',
           colors: {
             primary: parsed.colors?.primary || '#EC4899',
             secondary: parsed.colors?.secondary || '#8B5CF6',
@@ -269,7 +269,7 @@ Retorne ESTRITAMENTE um JSON no seguinte schema (sem markdown ou texto extra):
     forbiddenWords: ['amador', 'sem qualidade', 'golpe', 'grátis'],
     defaultCta,
     websiteUrl: input.website || `https://${cleanHandle}.com.br`,
-    logoUrl: input.profilePictureUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200',
+    logoUrl: (input.profilePictureUrl && !input.profilePictureUrl.includes('unsplash') && !input.profilePictureUrl.includes('photo-15')) ? input.profilePictureUrl : '/nsmusic-logo.png',
     colors: {
       primary: primaryColor,
       secondary: secondaryColor,

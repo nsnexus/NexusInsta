@@ -20,9 +20,16 @@ export const BrandSelector: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const getCleanLogo = (url?: string) => {
+    if (!url || url.includes('unsplash') || url.includes('fbcdn.net') || url.includes('photo-15')) {
+      return '/nsmusic-logo.png';
+    }
+    return url;
+  };
+
   const displayHandle = activeBrand.handle || `@${config.username}` || '@_nsmusic';
   const displayName = activeBrand.name || config.accountName || 'NSMusic';
-  const displayAvatar = config.avatarUrl || activeBrand.logoUrl;
+  const displayAvatar = getCleanLogo(config.avatarUrl || activeBrand.logoUrl);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -35,6 +42,7 @@ export const BrandSelector: React.FC = () => {
           <img 
             src={displayAvatar} 
             alt={displayName} 
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
             className="w-full h-full object-cover" 
           />
         </div>
@@ -47,7 +55,7 @@ export const BrandSelector: React.FC = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
           </div>
           <span className="text-[10px] text-slate-400 truncate max-w-[130px]">
-            {displayName} • {config.followersCount || 811} seg.
+            {displayName} • {config.followersCount || 817} seg.
           </span>
         </div>
 
@@ -87,8 +95,9 @@ export const BrandSelector: React.FC = () => {
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <img 
-                      src={config.avatarUrl || brand.logoUrl} 
+                      src={getCleanLogo(brand.logoUrl || config.avatarUrl)} 
                       alt={brand.name} 
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
                       className="w-8 h-8 rounded-full object-cover ring-2 ring-pink-500/40 shrink-0" 
                     />
                     <div className="truncate">
@@ -96,7 +105,7 @@ export const BrandSelector: React.FC = () => {
                         {brand.handle}
                       </p>
                       <p className="text-[10px] text-slate-400 truncate">
-                        {brand.name} • {config.followersCount || 811} seguidores
+                        {brand.name} • {config.followersCount || 817} seguidores
                       </p>
                     </div>
                   </div>

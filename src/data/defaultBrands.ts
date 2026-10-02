@@ -23,8 +23,8 @@ export const INITIAL_BRANDS: Brand[] = [
     name: 'NSMusic',
     slug: 'nsmusic',
     handle: '@_nsmusic',
-    niche: 'Produção Musical & Músicas Personalizadas',
-    description: 'Canções personalizadas para histórias reais de amor, casamentos, aniversários, dia dos pais e produções musicais com IA.',
+    niche: 'Produção Musical & Músicas Personalizadas com IA',
+    description: 'Transforme suas ideias em músicas completas com IA. 🤖🎶 ⚡ Crie faixas originais em segundos, apenas digitando.',
     targetAudience: 'Noivos, casais, famílias homenageando entes queridos, beatmakers e criadores de conteúdo.',
     toneOfVoice: 'Emocionante, Dinâmico, Criativo, Jovem e Autoritário no universo musical.',
     toneExamplesGood: [
@@ -37,10 +37,10 @@ export const INITIAL_BRANDS: Brand[] = [
     ],
     forbiddenWords: ['amador', 'sem qualidade', 'grátis para sempre', 'gambiarras'],
     defaultCta: 'Toque no link da bio e crie a sua música personalizada hoje!',
-    websiteUrl: 'https://nsmusic.nsnexus.com.br',
+    websiteUrl: 'https://nsmusic.ia.br',
     colors: {
       primary: '#EC4899',      // Pink / Magenta Oficial
-      secondary: '#8B5CF6',    // Violeta
+      secondary: '#3B82F6',    // Azul Elétrico do Logo
       background: '#0B0F19',   // Deep Space
       text: '#F8FAFC',         // Crisp White
       accent: '#06B6D4',       // Ciano
@@ -49,7 +49,7 @@ export const INITIAL_BRANDS: Brand[] = [
       headingFont: 'Outfit, sans-serif',
       bodyFont: 'Inter, sans-serif',
     },
-    logoUrl: 'https://scontent.fimp1-2.fna.fbcdn.net/v/t51.82787-15/769007290_18077502713401042_8299344586753147233_n.jpg?_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=7d201b&_nc_eui2=AeFnnmd_FbXj3ONVkZRyPqPsPuHgyLvUXgI-4eDIu9ReAqiw-CizDJhsTf-oEhsjkVOgxHvZCQUGyoMsjW6P6XP_&_nc_ohc=H-f36hETIOAQ7kNvwF8F7aX&_nc_oc=AdqNJliunIwtxF1VMy1GpOrGssRdkvVShYYGHy4erKSRhgcA7tofx74YH3pM_aQld8HBw8bOYFFT_Jrf0687A_bw&_nc_zt=23&_nc_ht=scontent.fimp1-2.fna&edm=AJ-jyNUEAAAA&_nc_gid=luB4QSrCT2g5kfAredlW-g&oh=00_AQNyrw0l69GYKBp4x4Jef6ZdcmF9dNSmoXMwEneF6Q46hA&oe=6AC46FE3',
+    logoUrl: '/nsmusic-logo.png',
     pillars: [
       {
         id: 'pillar_ns_01',
@@ -82,9 +82,9 @@ export const INITIAL_BRANDS: Brand[] = [
     ],
     brandMemoryJson: JSON.stringify({
       instagramAccount: '_nsmusic',
-      followers: 811,
+      followers: 817,
       heroProduct: 'Canção Personalizada Sob Medida',
-      website: 'https://nsmusic.nsnexus.com.br',
+      website: 'https://nsmusic.ia.br',
     }),
     createdAt: '2026-10-01T10:00:00.000Z',
   },

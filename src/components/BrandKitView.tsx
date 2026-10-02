@@ -14,14 +14,15 @@ import {
   Brain, 
   CheckCircle2,
   Layers,
-  Sparkles
+  Sparkles,
+  RotateCcw
 } from 'lucide-react';
 import type { ContentObjective } from '../types/brand';
 import { understandInstagramProfileWithAi, fetchInstagramProfileData } from '../services/instagramAiIngestion';
 
 export const BrandKitView: React.FC = () => {
   const { activeBrand, updateBrand } = useBrand();
-  const { config, addToast, setActiveTab } = useInstagram();
+  const { config, updateConfig, addToast, setActiveTab } = useInstagram();
 
   const [formData, setFormData] = useState(activeBrand);
   const [isSavedAlert, setIsSavedAlert] = useState(false);
@@ -30,6 +31,46 @@ export const BrandKitView: React.FC = () => {
   useEffect(() => {
     setFormData(activeBrand);
   }, [activeBrand]);
+
+  const getCleanLogo = (url?: string) => {
+    if (!url || url.includes('unsplash') || url.includes('fbcdn.net') || url.includes('photo-15')) {
+      return '/nsmusic-logo.png';
+    }
+    return url;
+  };
+
+  const displayLogo = getCleanLogo(formData.logoUrl || config.avatarUrl);
+
+  const handleRestoreRealInstagramData = () => {
+    const clean = '/nsmusic-logo.png';
+    const updated = {
+      ...formData,
+      name: 'NSMusic',
+      handle: '@_nsmusic',
+      niche: 'Música & Inteligência Artificial',
+      description: 'Transforme suas ideias em músicas completas com IA. 🤖🎶 ⚡ Crie faixas originais em segundos, apenas digitando.',
+      targetAudience: 'Criadores de conteúdo, músicos, entusiastas de IA e ouvintes de música personalizada',
+      websiteUrl: 'https://nsmusic.ia.br',
+      logoUrl: clean,
+      colors: {
+        primary: '#EC4899',
+        secondary: '#3B82F6',
+        background: '#0B0F19',
+        text: '#F8FAFC',
+        accent: '#06B6D4',
+      },
+    };
+    setFormData(updated);
+    updateBrand(activeBrand.id, updated);
+    updateConfig({
+      avatarUrl: clean,
+      followersCount: 817,
+      mediaCount: 12,
+      username: '_nsmusic',
+      accountName: 'NSMusic',
+    });
+    addToast('🎉 Dados e Logo oficial neon da @_nsmusic restaurados com sucesso!', 'success');
+  };
 
   const handleAnalyzeInstagram = async () => {
     setIsSyncing(true);
@@ -110,12 +151,13 @@ export const BrandKitView: React.FC = () => {
         <div>
           <div className="flex items-center gap-3">
             <div 
-              className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg font-bold overflow-hidden ring-2 ring-pink-500/40"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg font-bold overflow-hidden ring-2 ring-pink-500/50 bg-slate-900 shrink-0"
               style={{ backgroundColor: activeBrand.colors.primary }}
             >
               <img 
-                src={config.avatarUrl || activeBrand.logoUrl} 
+                src={displayLogo} 
                 alt={activeBrand.name} 
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
                 className="w-full h-full object-cover" 
               />
             </div>
@@ -127,13 +169,23 @@ export const BrandKitView: React.FC = () => {
                 </span>
               </h1>
               <p className="text-xs text-slate-400">
-                Dados reais: biografia, tom de voz das publicações e pilares da conta @{config.username} ({config.followersCount || 811} seguidores)
+                Dados reais: biografia, tom de voz das publicações e pilares da conta @{config.username || '_nsmusic'} ({config.followersCount || 817} seguidores • {config.mediaCount || 12} posts)
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleRestoreRealInstagramData}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-pink-400 border border-pink-500/30 text-xs font-bold transition-all cursor-pointer"
+            title="Recarrega logo neon, biografia oficial e link nsmusic.ia.br"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Restaurar @_nsmusic Oficial</span>
+          </button>
+
           <button
             onClick={handleAnalyzeInstagram}
             disabled={isSyncing}
@@ -183,6 +235,53 @@ export const BrandKitView: React.FC = () => {
             </h2>
 
             <div className="space-y-4">
+              {/* Logo Oficial Neon */}
+              <div className="p-4 rounded-2xl bg-slate-950/80 border border-pink-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden ring-2 ring-pink-500/60 shadow-lg shadow-pink-500/20 bg-slate-900 shrink-0">
+                    <img
+                      src={displayLogo}
+                      alt="Logo Oficial NSMusic"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs font-bold text-white">Logo Oficial do Instagram (@_nsmusic)</h3>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30 font-bold">
+                        Arte Neon Oficial
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Logo neon autêntica com notas musicais e ondas sonoras. Usada no cabeçalho, carrosséis e prévias.
+                    </p>
+                    <p className="text-[10px] font-mono text-slate-500 mt-0.5">
+                      Arquivo ativo: {formData.logoUrl || '/nsmusic-logo.png'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const clean = '/nsmusic-logo.png';
+                      const updated = { ...formData, logoUrl: clean };
+                      setFormData(updated);
+                      updateBrand(activeBrand.id, updated);
+                      updateConfig({ avatarUrl: clean });
+                      addToast('Logo oficial neon restaurada com sucesso!', 'success');
+                    }}
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border border-pink-500/30 text-xs font-bold transition-all cursor-pointer"
+                    title="Forçar o uso do arquivo /nsmusic-logo.png"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Usar Logo Oficial Neon</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">Nome da Marca</label>
@@ -470,10 +569,15 @@ export const BrandKitView: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div 
-                    className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-white"
+                    className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white overflow-hidden ring-1 ring-pink-500/50 bg-slate-900 shrink-0"
                     style={{ backgroundColor: formData.colors.primary }}
                   >
-                    {formData.name.slice(0, 2).toUpperCase()}
+                    <img
+                      src={displayLogo}
+                      alt="Logo"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <span className="text-[11px] font-bold" style={{ color: formData.colors.accent }}>
                     {formData.handle}

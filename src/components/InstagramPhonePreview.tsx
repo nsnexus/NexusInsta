@@ -112,8 +112,9 @@ export const InstagramPhonePreview = ({
             <div className="flex items-center gap-2.5">
               <div className="p-[2px] rounded-full bg-instagram-gradient">
                 <img
-                  src={config.avatarUrl}
+                  src={(!config.avatarUrl || config.avatarUrl.includes('unsplash') || config.avatarUrl.includes('fbcdn.net') || config.avatarUrl.includes('photo-15')) ? '/nsmusic-logo.png' : config.avatarUrl}
                   alt={config.username}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
                   className="w-8 h-8 rounded-full object-cover border-2 border-black"
                 />
               </div>
@@ -232,8 +233,9 @@ export const InstagramPhonePreview = ({
             <PlusSquare className="w-5 h-5 text-slate-400" />
             <Clapperboard className="w-5 h-5 text-slate-400" />
             <img
-              src={config.avatarUrl}
+              src={(!config.avatarUrl || config.avatarUrl.includes('unsplash') || config.avatarUrl.includes('fbcdn.net') || config.avatarUrl.includes('photo-15')) ? '/nsmusic-logo.png' : config.avatarUrl}
               alt="Perfil"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
               className="w-5 h-5 rounded-full object-cover ring-1 ring-white"
             />
           </div>

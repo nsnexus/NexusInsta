@@ -8,11 +8,11 @@ export const INITIAL_META_CONFIG: MetaApiConfig = {
   instagramAccountId: '17841442031250300',
   username: '_nsmusic',
   accountName: 'NSMusic',
-  avatarUrl: 'https://scontent.fimp1-2.fna.fbcdn.net/v/t51.82787-15/769007290_18077502713401042_8299344586753147233_n.jpg?_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=7d201b&_nc_eui2=AeFnnmd_FbXj3ONVkZRyPqPsPuHgyLvUXgI-4eDIu9ReAqiw-CizDJhsTf-oEhsjkVOgxHvZCQUGyoMsjW6P6XP_&_nc_ohc=H-f36hETIOAQ7kNvwF8F7aX&_nc_oc=AdqNJliunIwtxF1VMy1GpOrGssRdkvVShYYGHy4erKSRhgcA7tofx74YH3pM_aQld8HBw8bOYFFT_Jrf0687A_bw&_nc_zt=23&_nc_ht=scontent.fimp1-2.fna&edm=AJ-jyNUEAAAA&_nc_gid=luB4QSrCT2g5kfAredlW-g&oh=00_AQNyrw0l69GYKBp4x4Jef6ZdcmF9dNSmoXMwEneF6Q46hA&oe=6AC46FE3',
+  avatarUrl: '/nsmusic-logo.png',
   isConnected: true,
   isLiveMode: true,
   dailyQuotaUsed: 0,
-  followersCount: 811,
+  followersCount: 817,
   mediaCount: 12,
 };
 
@@ -35,14 +35,14 @@ export const DEFAULT_AUTO_REPLY_RULES: DirectAutoReplyRule[] = [
     id: 'rule_preco',
     category: 'Vendas & Planos',
     keywords: ['valor', 'preco', 'preço', 'quanto custa', 'tabela', 'orçamento', 'comprar'],
-    replyText: 'Olá! Que bom ter você por aqui! 🎵 Nossas produções e músicas personalizadas contam com pacotes exclusivos. Você pode conferir todos os detalhes e solicitar a sua diretamente no nosso portal oficial: https://nsmusic.nsnexus.com.br ou nos conte qual é o seu projeto!',
+    replyText: 'Olá! Que bom ter você por aqui! 🎵 Nossas produções e músicas personalizadas contam com pacotes exclusivos. Você pode conferir todos os detalhes e solicitar a sua diretamente no nosso portal oficial: https://nsmusic.ia.br ou nos conte qual é o seu projeto!',
     isActive: true,
   },
   {
     id: 'rule_personalizada',
     category: 'Música Personalizada',
     keywords: ['musica personalizada', 'música personalizada', 'homenagem', 'casamento', 'dia dos pais', 'aniversario', 'presente'],
-    replyText: '✨ Cada história merece uma trilha sonora única! Nós criamos canções exclusivas para casamentos, aniversários, homenagens e momentos inesquecíveis. Envie sua história e saiba mais em: https://nsmusic.nsnexus.com.br',
+    replyText: '✨ Cada história merece uma trilha sonora única! Nós criamos canções exclusivas para casamentos, aniversários, homenagens e momentos inesquecíveis. Envie sua história e saiba mais em: https://nsmusic.ia.br',
     isActive: true,
   },
   {

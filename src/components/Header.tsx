@@ -119,8 +119,9 @@ export const Header = () => {
               title="Conta Meta Conectada"
             >
               <img
-                src={config.avatarUrl}
+                src={(!config.avatarUrl || config.avatarUrl.includes('unsplash') || config.avatarUrl.includes('fbcdn.net') || config.avatarUrl.includes('photo-15')) ? '/nsmusic-logo.png' : config.avatarUrl}
                 alt={config.username}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
                 className="w-7 h-7 rounded-full object-cover ring-2 ring-pink-500/40"
               />
               <div className="text-left text-xs">

@@ -56,7 +56,7 @@ export const AnalyticsView = () => {
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-3xl font-black text-white">{config.followersCount || 811}</p>
+          <p className="text-3xl font-black text-white">{config.followersCount || 817}</p>
           <p className="text-[11px] text-pink-400 flex items-center gap-1 font-medium">
             <span>@{config.username}</span>
             <span className="text-emerald-400">• Conta Ativa</span>
@@ -189,8 +189,9 @@ export const AnalyticsView = () => {
 
           <div className="flex items-center gap-3.5 p-3 rounded-xl bg-slate-900 border border-slate-800">
             <img
-              src={config.avatarUrl}
+              src={(!config.avatarUrl || config.avatarUrl.includes('unsplash') || config.avatarUrl.includes('fbcdn.net') || config.avatarUrl.includes('photo-15')) ? '/nsmusic-logo.png' : config.avatarUrl}
               alt={config.username}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/nsmusic-logo.png'; }}
               className="w-12 h-12 rounded-full object-cover ring-2 ring-pink-500"
             />
             <div className="leading-tight">

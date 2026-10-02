@@ -78,7 +78,26 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try { 
         const parsed: Brand[] = JSON.parse(saved);
-        const filtered = parsed.filter((b) => b.id !== 'brand_mindfit' && b.id !== 'brand_cacamba');
+        const filtered = parsed
+          .filter((b) => b.id !== 'brand_mindfit' && b.id !== 'brand_cacamba')
+          .map((b) => {
+            if (b.id === 'brand_nsmusic') {
+              const needsLogo = !b.logoUrl || b.logoUrl.includes('fbcdn.net') || b.logoUrl.includes('unsplash') || b.logoUrl.includes('photo-15');
+              const needsDesc = !b.description || b.description.includes('conecta artistas e fãs');
+              const needsWeb = !b.websiteUrl || b.websiteUrl.includes('nsnexus.com.br');
+              const needsColors = b.colors?.primary === '#FF6F61';
+              return {
+                ...b,
+                name: 'NSMusic',
+                handle: '@_nsmusic',
+                logoUrl: needsLogo ? '/nsmusic-logo.png' : b.logoUrl,
+                websiteUrl: needsWeb ? 'https://nsmusic.ia.br' : b.websiteUrl,
+                description: needsDesc ? 'Transforme suas ideias em músicas completas com IA. 🤖🎶 ⚡ Crie faixas originais em segundos, apenas digitando.' : b.description,
+                colors: needsColors ? INITIAL_BRANDS[0].colors : b.colors,
+              };
+            }
+            return b;
+          });
         if (filtered.length > 0) return filtered;
         return INITIAL_BRANDS; 
       } catch { return INITIAL_BRANDS; }
@@ -153,6 +172,32 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     localStorage.setItem('nexus_structured_contents', JSON.stringify(structuredContents));
   }, [structuredContents]);
+
+  // Migrate legacy data in localStorage to official @_nsmusic data
+  useEffect(() => {
+    setBrands((prev) =>
+      prev.map((b) => {
+        if (b.id === 'brand_nsmusic') {
+          const needsLogo = !b.logoUrl || b.logoUrl.includes('fbcdn.net') || b.logoUrl.includes('unsplash') || b.logoUrl.includes('photo-15');
+          const needsDesc = !b.description || b.description.includes('conecta artistas e fãs');
+          const needsWeb = !b.websiteUrl || b.websiteUrl.includes('nsnexus.com.br');
+          const needsColors = b.colors?.primary === '#FF6F61';
+          if (needsLogo || needsDesc || needsWeb || needsColors) {
+            return {
+              ...b,
+              name: 'NSMusic',
+              handle: '@_nsmusic',
+              logoUrl: needsLogo ? '/nsmusic-logo.png' : b.logoUrl,
+              websiteUrl: needsWeb ? 'https://nsmusic.ia.br' : b.websiteUrl,
+              description: needsDesc ? 'Transforme suas ideias em músicas completas com IA. 🤖🎶 ⚡ Crie faixas originais em segundos, apenas digitando.' : b.description,
+              colors: needsColors ? INITIAL_BRANDS[0].colors : b.colors,
+            };
+          }
+        }
+        return b;
+      })
+    );
+  }, []);
 
   // Active Brand Helper
   const activeBrand = useMemo(() => {

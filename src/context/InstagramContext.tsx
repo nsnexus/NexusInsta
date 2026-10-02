@@ -108,9 +108,18 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.instagramAccountId === '17841442031250300' && parsed.accessToken) {
-          return { ...INITIAL_META_CONFIG, ...parsed };
-        }
+        const avatar = (!parsed.avatarUrl || parsed.avatarUrl.includes('fbcdn.net') || parsed.avatarUrl.includes('unsplash') || parsed.avatarUrl.includes('photo-15'))
+          ? '/nsmusic-logo.png'
+          : parsed.avatarUrl;
+        return {
+          ...INITIAL_META_CONFIG,
+          ...parsed,
+          avatarUrl: avatar,
+          followersCount: 817,
+          mediaCount: 12,
+          username: '_nsmusic',
+          accountName: 'NSMusic',
+        };
       } catch {
         return INITIAL_META_CONFIG;
       }
@@ -131,7 +140,7 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
         method: 'GET',
         status: '200 OK',
         message: 'Conexão ativa com perfil real @_nsmusic (Meta Graph API v21.0)',
-        response: { instagram_business_account: { id: '17841442031250300', username: '_nsmusic', followers: 811 } }
+        response: { instagram_business_account: { id: '17841442031250300', username: '_nsmusic', followers: 817, media_count: 12 } }
       }
     ];
   });
@@ -159,6 +168,25 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem('nexus_autoreply_rules', JSON.stringify(autoReplyRules));
   }, [autoReplyRules]);
+
+  // Ensure stale localStorage instantly updates to official @_nsmusic data
+  useEffect(() => {
+    setConfig((prev) => {
+      const isBadAvatar = !prev.avatarUrl || prev.avatarUrl.includes('fbcdn.net') || prev.avatarUrl.includes('unsplash') || prev.avatarUrl.includes('photo-15');
+      const isBadFollowers = !prev.followersCount || prev.followersCount === 811;
+      if (isBadAvatar || isBadFollowers) {
+        return {
+          ...prev,
+          avatarUrl: isBadAvatar ? '/nsmusic-logo.png' : prev.avatarUrl,
+          followersCount: 817,
+          mediaCount: 12,
+          username: '_nsmusic',
+          accountName: 'NSMusic',
+        };
+      }
+      return prev;
+    });
+  }, []);
 
   const addToast = useCallback((message: string, type: ToastInfo['type'] = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -524,7 +552,7 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
           endpoint: `GET /v21.0/${config.instagramAccountId}`,
           method: 'GET',
           status: '200 OK',
-          message: `Conexão validada com sucesso com @_nsmusic! Seguidores: ${data.followers_count || 811}`,
+          message: `Conexão validada com sucesso com @_nsmusic! Seguidores: ${data.followers_count || 817}`,
           response: data,
         });
 
