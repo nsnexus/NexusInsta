@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useInstagram } from '../context/InstagramContext';
+import { useBrand } from '../context/BrandContext';
 import { 
   Key, 
   ShieldCheck, 
@@ -9,11 +10,17 @@ import {
   Check, 
   Code2, 
   Server,
-  Bot
+  Bot,
+  Sparkles,
+  CheckCircle2
 } from 'lucide-react';
+import { fetchInstagramProfileData, understandInstagramProfileWithAi } from '../services/instagramAiIngestion';
 
 export const MetaConfigView = () => {
-  const { config, updateConfig, testMetaConnection, autopilotConfig, updateAutopilotConfig, addToast } = useInstagram();
+  const { config, updateConfig, testMetaConnection, autopilotConfig, updateAutopilotConfig, addToast, setActiveTab } = useInstagram();
+  const { activeBrand, updateBrand } = useBrand();
+  const [isSyncingBrand, setIsSyncingBrand] = useState(false);
+  const [brandSyncSuccess, setBrandSyncSuccess] = useState(false);
   
   const [appId, setAppId] = useState(config.appId);
   const [appSecret, setAppSecret] = useState(config.appSecret);
@@ -45,6 +52,47 @@ export const MetaConfigView = () => {
     setIsTesting(true);
     await testMetaConnection();
     setIsTesting(false);
+  };
+
+  const handleSyncBrandKitWithAi = async () => {
+    setIsSyncingBrand(true);
+    setBrandSyncSuccess(false);
+    try {
+      addToast('Conectando ao perfil do Instagram e lendo publicações...', 'info');
+      let profileData = {};
+      if (accessToken && instagramAccountId) {
+        profileData = await fetchInstagramProfileData(instagramAccountId, accessToken);
+      }
+
+      const understood = await understandInstagramProfileWithAi({
+        handle: username.startsWith('@') ? username : `@${username}`,
+        name: (profileData as any).name || activeBrand.name,
+        biography: (profileData as any).biography || '',
+        profilePictureUrl: (profileData as any).profilePictureUrl || config.avatarUrl,
+        website: (profileData as any).website,
+        recentCaptions: (profileData as any).recentCaptions,
+      });
+
+      updateBrand(activeBrand.id, {
+        name: understood.name,
+        handle: understood.handle,
+        niche: understood.niche,
+        description: understood.description,
+        targetAudience: understood.targetAudience,
+        toneOfVoice: understood.toneOfVoice,
+        defaultCta: understood.defaultCta,
+        colors: understood.colors,
+        pillars: understood.pillars,
+        brandMemoryJson: understood.brandMemoryJson,
+      });
+
+      setBrandSyncSuccess(true);
+      addToast(`🎉 Brand Kit da ${understood.name} calibrado automaticamente pela IA com base no Instagram!`, 'success');
+    } catch (err: any) {
+      addToast(`Falha ao sincronizar: ${err.message}`, 'error');
+    } finally {
+      setIsSyncingBrand(false);
+    }
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -200,6 +248,43 @@ export const MetaConfigView = () => {
               <p className="text-[10px] text-slate-500">
                 Usada pelo Piloto Automático para gerar legendas inéditas e criar imagens personalizadas no DALL-E 3.
               </p>
+            </div>
+
+            {/* AI Profile Reader & Comprehension Box */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-slate-900 border border-pink-500/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
+                  Leitura & Compreensão de Perfil com IA
+                </span>
+                <span className="text-[10px] text-pink-400 font-mono">Brand Kit Sync</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Ao clicar, a IA analisa a biografia e as últimas publicações do perfil conectado para calibrar o nicho, tom de voz, paleta de cores e pilares editoriais da marca.
+              </p>
+
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  type="button"
+                  onClick={handleSyncBrandKitWithAi}
+                  disabled={isSyncingBrand}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white text-xs font-bold shadow-md shadow-pink-500/25 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className={`w-3.5 h-3.5 ${isSyncingBrand ? 'animate-spin' : ''}`} />
+                  <span>{isSyncingBrand ? 'Lendo e Interpretando Perfil...' : 'Ler & Compreender Perfil com IA'}</span>
+                </button>
+
+                {brandSyncSuccess && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('brand-kit')}
+                    className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Ver Brand Kit →</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="pt-3 flex items-center gap-3">

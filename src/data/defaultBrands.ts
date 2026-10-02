@@ -1,0 +1,531 @@
+import type { 
+  Brand, 
+  Organization, 
+  CreditTransaction, 
+  ContentIdea, 
+  StructuredContent 
+} from '../types/brand';
+
+export const INITIAL_ORGANIZATION: Organization = {
+  id: 'org_nsnexus_default',
+  name: 'NSNEXUS Group',
+  ownerId: 'user_admin_01',
+  plan: 'pro',
+  status: 'active',
+  creditBalance: 420,
+};
+
+export const INITIAL_BRANDS: Brand[] = [
+  {
+    id: 'brand_nsmusic',
+    organizationId: 'org_nsnexus_default',
+    name: 'NSMusic',
+    slug: 'nsmusic',
+    handle: '@_nsmusic',
+    niche: 'Produção Musical, Beats & Músicas Personalizadas',
+    description: 'Central de criação musical com Inteligência Artificial e produções exclusivas para casamentos, homenagens, aniversários e trilhas sonoras.',
+    targetAudience: 'Noivos, casais, famílias querendo homenagear pessoas especiais, criadores de conteúdo e beatmakers.',
+    toneOfVoice: 'Emocionante, Dinâmico, Criativo, Jovem e Autoritário no universo musical.',
+    toneExamplesGood: [
+      'Transformamos sua história de amor em uma canção única e inesquecível gravada em estúdio.',
+      'A batida que você imaginou, produzida com inteligência artificial em segundos.'
+    ],
+    toneExamplesBad: [
+      'Compre agora nosso produto musical barato com desconto.',
+      'Somos a melhor empresa do mundo sem comparação.'
+    ],
+    forbiddenWords: ['amador', 'sem qualidade', 'grátis para sempre', 'gambiarras'],
+    defaultCta: 'Toque no link da bio e crie a sua música personalizada hoje!',
+    websiteUrl: 'https://nsmusic.nsnexus.com.br',
+    colors: {
+      primary: '#EC4899',      // Pink / Magenta
+      secondary: '#8B5CF6',    // Violet
+      background: '#0B0F19',   // Deep Space
+      text: '#F8FAFC',         // Crisp White
+      accent: '#06B6D4',       // Electric Cyan
+    },
+    typography: {
+      headingFont: 'Outfit, sans-serif',
+      bodyFont: 'Inter, sans-serif',
+    },
+    logoUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=200&q=80',
+    pillars: [
+      {
+        id: 'pillar_ns_01',
+        name: 'Histórias Reais & Homenagens',
+        objective: 'vender',
+        description: 'Músicas para casamentos, aniversários, dia dos pais e momentos inesquecíveis.',
+        suggestedFormats: ['carousel', 'reel'],
+      },
+      {
+        id: 'pillar_ns_02',
+        name: 'Bastidores de Produção & Beats',
+        objective: 'autoridade',
+        description: 'Dicas de mixagem, sintetizadores, synths analógicos e processo de criação musical.',
+        suggestedFormats: ['carousel', 'feed'],
+      },
+      {
+        id: 'pillar_ns_03',
+        name: 'Tecnologia & IA Musical',
+        objective: 'educar',
+        description: 'Como a inteligência artificial ajuda músicos a compor e quebrar bloqueios criativos.',
+        suggestedFormats: ['carousel', 'story'],
+      },
+      {
+        id: 'pillar_ns_04',
+        name: 'Lançamentos & Tendências',
+        objective: 'engajamento',
+        description: 'Novidades sonoras, festivais, novos gêneros e drops exclusivos.',
+        suggestedFormats: ['reel', 'feed'],
+      },
+    ],
+    brandMemoryJson: JSON.stringify({
+      heroProduct: 'Canção Personalizada Sob Medida',
+      priceRange: 'A partir de R$ 97,00',
+      keyBenefit: 'Letra única baseada no questionário do cliente e entrega em 48h',
+    }),
+    createdAt: '2026-10-01T10:00:00.000Z',
+  },
+  {
+    id: 'brand_mindfit',
+    organizationId: 'org_nsnexus_default',
+    name: 'Mindfit',
+    slug: 'mindfit',
+    handle: '@mindfit.app',
+    niche: 'Saúde Mental, Foco e Performance Cognitiva',
+    description: 'Protocolos de neurociência prática, respiração guiada, rotinas matinais e treino cognitivo para vencer o burnout.',
+    targetAudience: 'Empreendedores, executivos, estudantes e profissionais com alta carga mental que buscam clareza mental e sono reparador.',
+    toneOfVoice: 'Sereno, Científico, Empático, Prático e Inspirador.',
+    toneExamplesGood: [
+      '3 minutos de respiração fisiológica reduzem o cortisol imediatamente.',
+      'Sua rotina matinal não precisa ser exaustiva para ser transformadora.'
+    ],
+    toneExamplesBad: [
+      'Trabalhe enquanto eles dormem até o colapso.',
+      'Cura milagrosa instantânea para qualquer ansiedade.'
+    ],
+    forbiddenWords: ['cura milagrosa', 'preguiça', 'trabalhe 20 horas por dia'],
+    defaultCta: 'Baixe o Mindfit e experimente seu primeiro reset mental gratuito.',
+    websiteUrl: 'https://mindfit.nsnexus.com.br',
+    colors: {
+      primary: '#10B981',      // Emerald Green
+      secondary: '#059669',    // Forest
+      background: '#042F2E',   // Deep Teal
+      text: '#ECFDF5',         // Soft Mint
+      accent: '#F59E0B',       // Warm Amber
+    },
+    typography: {
+      headingFont: 'Outfit, sans-serif',
+      bodyFont: 'Inter, sans-serif',
+    },
+    logoUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=200&q=80',
+    pillars: [
+      {
+        id: 'pillar_mf_01',
+        name: 'Neurociência do Foco & Produtividade',
+        objective: 'educar',
+        description: 'Técnicas baseadas em evidências para vencer distrações e entrar em Flow state.',
+        suggestedFormats: ['carousel', 'feed'],
+      },
+      {
+        id: 'pillar_mf_02',
+        name: 'Sono Profundo & Recuperação',
+        objective: 'autoridade',
+        description: 'Higiene do sono, luz solar matinal e desaceleração do cérebro à noite.',
+        suggestedFormats: ['carousel', 'story'],
+      },
+      {
+        id: 'pillar_mf_03',
+        name: 'Protocolos Mindfit Pro',
+        objective: 'vender',
+        description: 'Demonstração dos áudios binaurais e treinos rápidos do aplicativo.',
+        suggestedFormats: ['carousel', 'reel'],
+      },
+    ],
+    brandMemoryJson: JSON.stringify({
+      heroProduct: 'Mindfit Pro Assinatura Anual',
+      keyBenefit: 'Redução de 43% no estresse percebido em 14 dias de uso guiado',
+    }),
+    createdAt: '2026-10-01T11:00:00.000Z',
+  },
+  {
+    id: 'brand_cacamba',
+    organizationId: 'org_nsnexus_default',
+    name: 'Caçamba Flow',
+    slug: 'cacamba-flow',
+    handle: '@cacambaflow',
+    niche: 'Locação de Caçambas e Gestão de Resíduos de Obras',
+    description: 'Plataforma rápida para aluguel de caçambas com entrega expressa, rastreamento de descarte e certificação ecológica para obras.',
+    targetAudience: 'Engenheiros, mestres de obras, arquitetos, construtoras e proprietários reformando residências.',
+    toneOfVoice: 'Direto, Confiável, Pontual, Técnico e Sustentável.',
+    toneExamplesGood: [
+      'Caçamba na sua calçada em até 2 horas com nota fiscal e destinação legal.',
+      'Sua reforma sem entulho acumulado e sem risco de multas municipais.'
+    ],
+    toneExamplesBad: [
+      'Descarte em qualquer terreno baldio para economizar.',
+      'Entregamos quando der tempo.'
+    ],
+    forbiddenWords: ['descarte clandestino', 'sem nota', 'atrasos normais'],
+    defaultCta: 'Peça sua caçamba pelo WhatsApp com entrega garantida em 2h!',
+    websiteUrl: 'https://cacambaflow.com.br',
+    colors: {
+      primary: '#F97316',      // Industrial Vibrant Orange
+      secondary: '#EA580C',    // Rust Amber
+      background: '#0F172A',   // Slate Dark
+      text: '#FFFFFF',         // Pure White
+      accent: '#3B82F6',       // High-vis Blue
+    },
+    typography: {
+      headingFont: 'Outfit, sans-serif',
+      bodyFont: 'Inter, sans-serif',
+    },
+    logoUrl: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=200&q=80',
+    pillars: [
+      {
+        id: 'pillar_cf_01',
+        name: 'Entrega Expressa & Zero Paradas na Obra',
+        objective: 'vender',
+        description: 'Como nosso sistema de agendamento garante a caçamba no horário exato.',
+        suggestedFormats: ['carousel', 'reel'],
+      },
+      {
+        id: 'pillar_cf_02',
+        name: 'Leis Municipais & Como Evitar Multas',
+        objective: 'autoridade',
+        description: 'Tudo sobre permissões de rua, sinalização e descarte correto de resíduos classe A e B.',
+        suggestedFormats: ['carousel', 'feed'],
+      },
+      {
+        id: 'pillar_cf_03',
+        name: 'Sustentabilidade & Reciclagem de Entulho',
+        objective: 'educar',
+        description: 'Onde vai parar o entulho da sua obra e como ele vira brita reciclada.',
+        suggestedFormats: ['carousel', 'story'],
+      },
+    ],
+    brandMemoryJson: JSON.stringify({
+      heroProduct: 'Aluguel de Caçamba Estacionária 5m³',
+      keyBenefit: 'Entrega em até 2 horas e certificado de destinação ambiental válido',
+    }),
+    createdAt: '2026-10-01T12:00:00.000Z',
+  },
+];
+
+export const INITIAL_CREDIT_TRANSACTIONS: CreditTransaction[] = [
+  {
+    id: 'tx_init_01',
+    organizationId: 'org_nsnexus_default',
+    delta: 500,
+    reason: 'Recarga Inicial do Plano Pro',
+    referenceType: 'recharge',
+    createdAt: '2026-10-01T08:00:00.000Z',
+  },
+  {
+    id: 'tx_init_02',
+    organizationId: 'org_nsnexus_default',
+    brandId: 'brand_nsmusic',
+    delta: -15,
+    reason: 'Geração de Carrossel Estruturado BestContent: "Sua história pode virar música"',
+    referenceType: 'ai_carousel',
+    createdAt: '2026-10-01T14:32:00.000Z',
+  },
+  {
+    id: 'tx_init_03',
+    organizationId: 'org_nsnexus_default',
+    brandId: 'brand_nsmusic',
+    delta: -5,
+    reason: 'Geração de Imagem com IA: Capa Estúdio Acústico',
+    referenceType: 'ai_image',
+    createdAt: '2026-10-01T14:35:00.000Z',
+  },
+  {
+    id: 'tx_init_04',
+    organizationId: 'org_nsnexus_default',
+    brandId: 'brand_mindfit',
+    delta: -15,
+    reason: 'Geração de Carrossel: "3 Hábitos que Resetam sua Ansiedade"',
+    referenceType: 'ai_carousel',
+    createdAt: '2026-10-01T15:20:00.000Z',
+  },
+  {
+    id: 'tx_init_05',
+    organizationId: 'org_nsnexus_default',
+    brandId: 'brand_cacamba',
+    delta: -2,
+    reason: 'Geração de Pautas e Copy Editorial Semanal',
+    referenceType: 'ai_text',
+    createdAt: '2026-10-01T16:10:00.000Z',
+  },
+];
+
+export const INITIAL_CONTENT_IDEAS: ContentIdea[] = [
+  {
+    id: 'idea_ns_01',
+    brandId: 'brand_nsmusic',
+    title: 'Sua História de Amor Pode Virar Música',
+    hook: 'Você já imaginou presentear quem você ama com uma música feita exclusivamente sobre a história de vocês?',
+    objective: 'vender',
+    format: 'carousel',
+    scheduledAt: '2026-10-03T18:00:00.000Z',
+    status: 'draft',
+    campaign: 'Dia dos Noivos & Aniversários',
+    pillarId: 'pillar_ns_01',
+    structuredContentId: 'content_ns_carousel_01',
+  },
+  {
+    id: 'idea_ns_02',
+    brandId: 'brand_nsmusic',
+    title: 'O Segredo dos Graves que Batem no Peito',
+    hook: 'Por que o som do seu carro treme enquanto o fone parece sem força? O segredo do sub-bass revelado.',
+    objective: 'autoridade',
+    format: 'carousel',
+    scheduledAt: '2026-10-05T19:30:00.000Z',
+    status: 'idea',
+    campaign: 'Série Dicas de Estúdio',
+    pillarId: 'pillar_ns_02',
+  },
+  {
+    id: 'idea_ns_03',
+    brandId: 'brand_nsmusic',
+    title: 'IA vai substituir os compositores?',
+    hook: 'A inteligência artificial não veio roubar seu trabalho, veio acabar com seu bloqueio criativo.',
+    objective: 'educar',
+    format: 'reel',
+    scheduledAt: '2026-10-07T12:00:00.000Z',
+    status: 'idea',
+    pillarId: 'pillar_ns_03',
+  },
+  {
+    id: 'idea_mf_01',
+    brandId: 'brand_mindfit',
+    title: '3 Técnicas para Desligar a Mente Antes de Dormir',
+    hook: 'Se você deita e o cérebro começa a repassar tudo o que deu errado hoje, salve este post.',
+    objective: 'educar',
+    format: 'carousel',
+    scheduledAt: '2026-10-04T21:00:00.000Z',
+    status: 'draft',
+    pillarId: 'pillar_mf_02',
+    structuredContentId: 'content_mf_carousel_01',
+  },
+  {
+    id: 'idea_mf_02',
+    brandId: 'brand_mindfit',
+    title: 'O Fim do Burnout Silencioso',
+    hook: 'Você não está sem tempo. Você está com a bateria cognitiva drenada.',
+    objective: 'autoridade',
+    format: 'carousel',
+    scheduledAt: '2026-10-06T09:00:00.000Z',
+    status: 'idea',
+    pillarId: 'pillar_mf_01',
+  },
+  {
+    id: 'idea_cf_01',
+    brandId: 'brand_cacamba',
+    title: '5 Multas que Podem Parar a Sua Reforma',
+    hook: 'Colocar entulho na calçada sem caçamba legalizada pode custar até R$ 5.000 de multa no mesmo dia.',
+    objective: 'autoridade',
+    format: 'carousel',
+    scheduledAt: '2026-10-04T10:00:00.000Z',
+    status: 'draft',
+    pillarId: 'pillar_cf_02',
+    structuredContentId: 'content_cf_carousel_01',
+  },
+];
+
+export const INITIAL_STRUCTURED_CONTENTS: StructuredContent[] = [
+  {
+    id: 'content_ns_carousel_01',
+    brandId: 'brand_nsmusic',
+    ideaId: 'idea_ns_01',
+    title: 'Sua História de Amor Pode Virar Música',
+    format: 'carousel',
+    aspectRatio: '4:5',
+    objective: 'vender',
+    headline: 'Sua história de amor merece virar música exclusiva',
+    caption: '🎵 Já pensou em dar de presente uma música composta exclusivamente para a sua história de amor?\n\nNa @_nsmusic, você nos conta os melhores momentos, como se conheceram e os sentimentos mais profundos. Nossos produtores e compositores transformam tudo em uma canção emocionante com qualidade de estúdio profissional.\n\n✨ Perfeito para:\n- Casamentos e entradas de noivos\n- Homenagens de aniversário\n- Declarações inesquecíveis\n\n👉 Toque no link da bio e comece a compor a sua agora mesmo!\n\n#nsmusic #musicapersonalizada #presentecriativo #casamento #homenagem',
+    cta: 'Crie sua música personalizada hoje pelo link da bio',
+    hashtags: ['#nsmusic', '#musicapersonalizada', '#homenagem', '#presentecriativo', '#casamento'],
+    abVariations: {
+      hooks: [
+        'Sua história de amor merece virar música exclusiva',
+        'O presente mais emocionante que alguém já recebeu na vida',
+        'Por que dar flores se você pode dar uma música eterna?'
+      ],
+      ctas: [
+        'Toque no link da bio para criar a sua canção',
+        'Envie sua história pelo direct e receba uma prévia',
+        'Reserve sua data no estúdio da @_nsmusic'
+      ]
+    },
+    version: 1,
+    status: 'draft',
+    createdAt: '2026-10-01T14:32:00.000Z',
+    updatedAt: '2026-10-01T14:40:00.000Z',
+    slides: [
+      {
+        id: 'slide_ns_1',
+        slideNumber: 1,
+        type: 'cover',
+        headline: 'Sua história pode virar uma música inesquecível',
+        subheadline: 'Descubra como eternizar seus momentos mais especiais em uma canção gravada em estúdio',
+        visualPrompt: 'Estúdio de música com iluminação neon magenta e fones profissionais',
+        imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1080&q=80',
+        layout: 'hero_center',
+      },
+      {
+        id: 'slide_ns_2',
+        slideNumber: 2,
+        type: 'retention',
+        headline: 'Flores murcham, chocolates acabam...',
+        subheadline: 'Mas uma canção feita sob medida toca a alma e dura para sempre',
+        bodyText: 'Quantas vezes você tentou encontrar o presente ideal para surpreender quem ama e caiu nos mesmos clichês de sempre?',
+        visualPrompt: 'Microfone vintage com luz suave dourada',
+        imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1080&q=80',
+        layout: 'split_card',
+      },
+      {
+        id: 'slide_ns_3',
+        slideNumber: 3,
+        type: 'body_1',
+        headline: 'Como funciona em 3 passos simples:',
+        bodyText: '1. Você nos conta a história (detalhes marcantes, apelidos carinhosos, momentos únicos)\n2. Nossos compositores criam letra e harmonia sob medida\n3. Você recebe a música completa em alta definição pronta para emocionar',
+        visualPrompt: 'Partitura e fones de ouvido em mesa de madeira',
+        imageUrl: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=1080&q=80',
+        layout: 'checklist',
+      },
+      {
+        id: 'slide_ns_4',
+        slideNumber: 4,
+        type: 'body_2',
+        headline: 'Produção profissional com emoção real',
+        bodyText: 'Unimos tecnologia avançada de arranjos musicais com a sensibilidade de compositores que entendem o poder da poesia cantada.',
+        visualPrompt: 'Mesa de som e console de mixagem iluminado',
+        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1080&q=80',
+        layout: 'minimal_quote',
+      },
+      {
+        id: 'slide_ns_5',
+        slideNumber: 5,
+        type: 'summary_cta',
+        headline: 'Eternize a sua história hoje mesmo',
+        subheadline: 'Clique no link da nossa bio e crie sua música personalizada na NSMusic!',
+        ctaText: 'Quero minha música personalizada 🎵',
+        visualPrompt: 'Casal feliz dançando ao som de música suave',
+        imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1080&q=80',
+        layout: 'cta_action',
+      },
+    ],
+  },
+  {
+    id: 'content_mf_carousel_01',
+    brandId: 'brand_mindfit',
+    ideaId: 'idea_mf_01',
+    title: '3 Técnicas para Desligar a Mente Antes de Dormir',
+    format: 'carousel',
+    aspectRatio: '4:5',
+    objective: 'educar',
+    headline: 'O protocolo dos 3 passos para silenciar a mente à noite',
+    caption: '🌙 Quantas noites você deitou cansado mas o cérebro parecia um navegador com 40 abas abertas?\n\nA neurociência explica que o cérebro precisa de transição para ativar o sistema parassimpático.\n\nExperimente aplicar esse protocolo hoje mesmo e sinta a diferença na qualidade do seu sono.\n\nSalve para não esquecer! 💾\n\n#mindfit #saudemental #sonoreparador #foco #neurociencia',
+    cta: 'Baixe o Mindfit e ative o protocolo de sono guiado',
+    hashtags: ['#mindfit', '#saudemental', '#sonoperfeito', '#qualidadedevida', '#neurociencia'],
+    version: 1,
+    status: 'draft',
+    createdAt: '2026-10-01T15:20:00.000Z',
+    updatedAt: '2026-10-01T15:20:00.000Z',
+    slides: [
+      {
+        id: 'slide_mf_1',
+        slideNumber: 1,
+        type: 'cover',
+        headline: '3 técnicas para desligar a mente antes de dormir',
+        subheadline: 'O protocolo de neurociência prática para acordar com energia e sem ansiedade',
+        visualPrompt: 'Pessoa em ambiente calmo com luz baixa relaxando',
+        imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1080&q=80',
+        layout: 'hero_center',
+      },
+      {
+        id: 'slide_mf_2',
+        slideNumber: 2,
+        type: 'retention',
+        headline: 'Seu cérebro não tem botão de desliga imediato',
+        subheadline: 'Ele precisa de um sinal biológico claro de que o dia terminou',
+        bodyText: 'Luz de tela e estímulos mantêm seu cortisol elevado até 2 horas após desligar o smartphone.',
+        visualPrompt: 'Quarto escuro e silêncio aconchegante',
+        imageUrl: 'https://images.unsplash.com/photo-1511295742362-92c96b124e52?auto=format&fit=crop&w=1080&q=80',
+        layout: 'split_card',
+      },
+      {
+        id: 'slide_mf_3',
+        slideNumber: 3,
+        type: 'body_1',
+        headline: 'O Protocolo dos 3 Passos:',
+        bodyText: '1. O Suspiro Fisiológico: 2 inspirações profundas pelo nariz e 1 expiração longa pela boca (repita 3x)\n2. Brain Dump: anote em um papel as pendências de amanhã\n3. Luz âmbar 30 min antes de deitar',
+        visualPrompt: 'Caderno de anotações e caneta em luz suave',
+        imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1080&q=80',
+        layout: 'checklist',
+      },
+      {
+        id: 'slide_mf_4',
+        slideNumber: 4,
+        type: 'summary_cta',
+        headline: 'Quer acelerar seu relaxamento hoje?',
+        subheadline: 'Coloque seus fones e deixe a frequência binaural do Mindfit guiar suas ondas cerebrais ao sono profundo.',
+        ctaText: 'Experimente Mindfit Grátis 🌿',
+        visualPrompt: 'Pessoa dormindo serena e revigorada',
+        imageUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=1080&q=80',
+        layout: 'cta_action',
+      },
+    ],
+  },
+  {
+    id: 'content_cf_carousel_01',
+    brandId: 'brand_cacamba',
+    ideaId: 'idea_cf_01',
+    title: '5 Multas que Podem Parar a Sua Reforma',
+    format: 'carousel',
+    aspectRatio: '4:5',
+    objective: 'autoridade',
+    headline: 'Evite prejuízos: o guia anti-multas para reformas urbanas',
+    caption: '🚧 Você sabia que a fiscalização de posturas municipais pode autuar sua obra em até R$ 5.000 se o entulho estiver irregular na calçada?\n\nAlugar caçamba legalizada não é custo, é segurança jurídica e tranquilidade para o seu bolso.\n\n👉 Precisa de caçamba expressa em até 2 horas? Mande um WhatsApp para a Caçamba Flow!\n\n#cacambaflow #obras #reforma #engenharia #arquitetura #residuos',
+    cta: 'Peça sua caçamba pelo WhatsApp com entrega em 2h',
+    hashtags: ['#cacambaflow', '#obras', '#construcaocivil', '#reforma', '#residuosdeobras'],
+    version: 1,
+    status: 'draft',
+    createdAt: '2026-10-01T16:10:00.000Z',
+    updatedAt: '2026-10-01T16:10:00.000Z',
+    slides: [
+      {
+        id: 'slide_cf_1',
+        slideNumber: 1,
+        type: 'cover',
+        headline: '5 multas que podem travar a sua obra hoje mesmo',
+        subheadline: 'O que a fiscalização procura e como se proteger sem perder prazos',
+        visualPrompt: 'Canteiro de obras limpo e organizado com caçamba identificada',
+        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb1861564?auto=format&fit=crop&w=1080&q=80',
+        layout: 'hero_center',
+      },
+      {
+        id: 'slide_cf_2',
+        slideNumber: 2,
+        type: 'body_1',
+        headline: 'Os erros mais comuns que custam caro:',
+        bodyText: '1. Descarte de entulho em sacos na calçada impedindo pedestres\n2. Caçamba sem faixas refletivas obrigatórias à noite\n3. Falta de nota de destinação em aterro de inertes licenciado\n4. Caçamba estacionada a menos de 10m de esquinas',
+        visualPrompt: 'Engenheiro fiscalizando com prancheta',
+        imageUrl: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1080&q=80',
+        layout: 'checklist',
+      },
+      {
+        id: 'slide_cf_3',
+        slideNumber: 3,
+        type: 'summary_cta',
+        headline: 'Caçamba Flow: Entrega Expressa em 2h',
+        subheadline: '100% legalizada, faixas reflexivas novas e manifesto de resíduo emitido na hora.',
+        ctaText: 'Solicitar Caçamba Agora 🚜',
+        visualPrompt: 'Caminhão moderno entregando caçamba laranja',
+        imageUrl: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1080&q=80',
+        layout: 'cta_action',
+      },
+    ],
+  },
+];

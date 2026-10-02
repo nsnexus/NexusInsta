@@ -14,7 +14,18 @@ interface ToastInfo {
   type: 'success' | 'info' | 'error' | 'warning';
 }
 
-export type TabType = 'content-automation' | 'queue' | 'create' | 'autopilot' | 'messages' | 'analytics' | 'config' | 'logs';
+export type TabType = 
+  | 'carousel-studio'
+  | 'editorial-planner'
+  | 'brand-kit'
+  | 'content-automation' 
+  | 'queue' 
+  | 'create' 
+  | 'autopilot' 
+  | 'messages' 
+  | 'analytics' 
+  | 'config' 
+  | 'logs';
 
 interface InstagramContextType {
   posts: InstagramPost[];
@@ -125,7 +136,7 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
     ];
   });
 
-  const [activeTab, setActiveTab] = useState<TabType>('content-automation');
+  const [activeTab, setActiveTab] = useState<TabType>('carousel-studio');
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
 
   // Persist State
