@@ -1,5 +1,6 @@
 import { InstagramProvider, useInstagram } from './context/InstagramContext';
 import { Header } from './components/Header';
+import { ContentAutomationView } from './components/ContentAutomationView';
 import { QueueTimeline } from './components/QueueTimeline';
 import { PostCreator } from './components/PostCreator';
 import { AiAutopilotView } from './components/AiAutopilotView';
@@ -32,6 +33,7 @@ function DashboardContent() {
 
       {/* Main Tab Content */}
       <main className="flex-1 pb-16">
+        {activeTab === 'content-automation' && <ContentAutomationView />}
         {activeTab === 'queue' && <QueueTimeline />}
         {activeTab === 'create' && <PostCreator />}
         {activeTab === 'autopilot' && <AiAutopilotView />}

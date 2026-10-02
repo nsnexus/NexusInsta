@@ -14,7 +14,7 @@ interface ToastInfo {
   type: 'success' | 'info' | 'error' | 'warning';
 }
 
-export type TabType = 'queue' | 'create' | 'autopilot' | 'messages' | 'analytics' | 'config' | 'logs';
+export type TabType = 'content-automation' | 'queue' | 'create' | 'autopilot' | 'messages' | 'analytics' | 'config' | 'logs';
 
 interface InstagramContextType {
   posts: InstagramPost[];
@@ -125,7 +125,7 @@ export const InstagramProvider = ({ children }: { children: ReactNode }) => {
     ];
   });
 
-  const [activeTab, setActiveTab] = useState<TabType>('queue');
+  const [activeTab, setActiveTab] = useState<TabType>('content-automation');
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
 
   // Persist State

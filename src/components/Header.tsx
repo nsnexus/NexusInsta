@@ -17,6 +17,7 @@ export const Header = () => {
   const { activeTab, setActiveTab, config, logout } = useInstagram();
 
   const navItems = [
+    { id: 'content-automation' as const, label: 'Automação de Conteúdo', icon: Sparkles },
     { id: 'queue' as const, label: 'Fila & Calendário', icon: Calendar },
     { id: 'create' as const, label: 'Criar Post', icon: PlusCircle },
     { id: 'autopilot' as const, label: 'Piloto IA', icon: Bot },

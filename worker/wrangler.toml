@@ -1,0 +1,11 @@
+name = "nexusinsta-robot"
+main = "src/index.js"
+compatibility_date = "2024-04-05"
+
+[triggers]
+crons = ["0 * * * *"] # Checa a cada hora (13:00 UTC = 10:00 BRT, 21:00 UTC = 18:00 BRT)
+
+[vars]
+INSTAGRAM_ACCOUNT_ID = "17841442031250300"
+BRAND_NAME = "NSMusic"
+WEBSITE_URL = "nsmusic.nsnexus.com.br"
