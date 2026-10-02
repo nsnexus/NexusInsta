@@ -76,13 +76,19 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [brands, setBrands] = useState<Brand[]>(() => {
     const saved = localStorage.getItem('nexus_brands');
     if (saved) {
-      try { return JSON.parse(saved); } catch { return INITIAL_BRANDS; }
+      try { 
+        const parsed: Brand[] = JSON.parse(saved);
+        const filtered = parsed.filter((b) => b.id !== 'brand_mindfit' && b.id !== 'brand_cacamba');
+        if (filtered.length > 0) return filtered;
+        return INITIAL_BRANDS; 
+      } catch { return INITIAL_BRANDS; }
     }
     return INITIAL_BRANDS;
   });
 
   const [activeBrandId, setActiveBrandIdState] = useState<string>(() => {
     const saved = localStorage.getItem('nexus_active_brand_id');
+    if (saved === 'brand_mindfit' || saved === 'brand_cacamba') return 'brand_nsmusic';
     return saved || INITIAL_BRANDS[0]?.id || 'brand_nsmusic';
   });
 
@@ -99,7 +105,10 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [contentIdeas, setContentIdeas] = useState<ContentIdea[]>(() => {
     const saved = localStorage.getItem('nexus_content_ideas');
     if (saved) {
-      try { return JSON.parse(saved); } catch { return INITIAL_CONTENT_IDEAS; }
+      try { 
+        const parsed: ContentIdea[] = JSON.parse(saved);
+        return parsed.filter((i) => i.brandId !== 'brand_mindfit' && i.brandId !== 'brand_cacamba');
+      } catch { return INITIAL_CONTENT_IDEAS; }
     }
     return INITIAL_CONTENT_IDEAS;
   });
@@ -107,7 +116,10 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [structuredContents, setStructuredContents] = useState<StructuredContent[]>(() => {
     const saved = localStorage.getItem('nexus_structured_contents');
     if (saved) {
-      try { return JSON.parse(saved); } catch { return INITIAL_STRUCTURED_CONTENTS; }
+      try { 
+        const parsed: StructuredContent[] = JSON.parse(saved);
+        return parsed.filter((c) => c.brandId !== 'brand_mindfit' && c.brandId !== 'brand_cacamba');
+      } catch { return INITIAL_STRUCTURED_CONTENTS; }
     }
     return INITIAL_STRUCTURED_CONTENTS;
   });

@@ -20,8 +20,8 @@ import type { ContentObjective } from '../types/brand';
 import { understandInstagramProfileWithAi, fetchInstagramProfileData } from '../services/instagramAiIngestion';
 
 export const BrandKitView: React.FC = () => {
-  const { activeBrand, updateBrand, setIsBrandModalOpen } = useBrand();
-  const { config, addToast } = useInstagram();
+  const { activeBrand, updateBrand } = useBrand();
+  const { config, addToast, setActiveTab } = useInstagram();
 
   const [formData, setFormData] = useState(activeBrand);
   const [isSavedAlert, setIsSavedAlert] = useState(false);
@@ -110,24 +110,24 @@ export const BrandKitView: React.FC = () => {
         <div>
           <div className="flex items-center gap-3">
             <div 
-              className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg font-bold overflow-hidden"
+              className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg font-bold overflow-hidden ring-2 ring-pink-500/40"
               style={{ backgroundColor: activeBrand.colors.primary }}
             >
-              {activeBrand.logoUrl ? (
-                <img src={activeBrand.logoUrl} alt={activeBrand.name} className="w-full h-full object-cover" />
-              ) : (
-                activeBrand.name.slice(0, 2).toUpperCase()
-              )}
+              <img 
+                src={config.avatarUrl || activeBrand.logoUrl} 
+                alt={activeBrand.name} 
+                className="w-full h-full object-cover" 
+              />
             </div>
             <div>
               <h1 className="text-2xl font-black text-white flex items-center gap-2">
-                Brand Kit — {activeBrand.name}
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-pink-500/20 text-pink-400 border border-pink-500/30">
-                  {activeBrand.handle}
+                Diretrizes do Perfil — {activeBrand.handle}
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  {config.isConnected ? 'Perfil Oficial Conectado' : 'Instagram'}
                 </span>
               </h1>
               <p className="text-xs text-slate-400">
-                Identidade persistida: cores, fontes, tom de voz e pilares consumidos pelo motor de IA
+                Dados reais: biografia, tom de voz das publicações e pilares da conta @{config.username} ({config.followersCount || 811} seguidores)
               </p>
             </div>
           </div>
@@ -138,18 +138,18 @@ export const BrandKitView: React.FC = () => {
             onClick={handleAnalyzeInstagram}
             disabled={isSyncing}
             className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border border-pink-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
-            title="A IA analisa a bio, legendas e fotos do Instagram para preencher ou calibrar o Brand Kit"
+            title="A IA analisa a bio, legendas e fotos do Instagram para preencher ou calibrar as diretrizes"
           >
             <Sparkles className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>{isSyncing ? 'Lendo Instagram...' : 'Analisar Perfil com IA'}</span>
+            <span>{isSyncing ? 'Lendo Instagram...' : 'Escanear Perfil com IA'}</span>
           </button>
 
           <button
-            onClick={() => setIsBrandModalOpen(true)}
+            onClick={() => setActiveTab('config')}
             className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Nova Marca</span>
+            <span>Gerenciar Conexão Meta</span>
           </button>
 
           <button
